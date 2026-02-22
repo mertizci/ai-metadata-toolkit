@@ -70,7 +70,11 @@ noai-watermark source.png --strength 0.04 --steps 50 -o cleaned.png
 ## Quick Start
 
 ```bash
+# Install via pip
 pip install noai-watermark
+
+# Or install via Homebrew (macOS)
+brew install mertizci/noai-watermark/noai-watermark
 
 # Default pipeline (img2img, fast)
 noai-watermark source.png -o cleaned.png
