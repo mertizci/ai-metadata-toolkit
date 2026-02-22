@@ -8,7 +8,7 @@ This package exposes two main subsystems:
    based regeneration attack for stripping invisible watermarks.
 """
 
-__version__ = "0.1.22"
+__version__ = "0.1.23"
 
 from metadata_handler import (
     clone_metadata,
