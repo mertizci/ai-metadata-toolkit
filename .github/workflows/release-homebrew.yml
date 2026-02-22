@@ -15,16 +15,8 @@ permissions:
 
 jobs:
   build-and-upload-binary:
-    name: Build macOS binary (${{ matrix.arch }})
-    runs-on: ${{ matrix.runner }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - runner: macos-14
-            arch: arm64
-          - runner: macos-13
-            arch: amd64
+    name: Build macOS binary (arm64)
+    runs-on: macos-14
 
     env:
       RELEASE_TAG: ${{ github.event.release.tag_name || inputs.tag }}
@@ -57,15 +49,13 @@ jobs:
 
       - name: Package release asset
         run: |
-          ASSET_NAME="noai-watermark-darwin-${{ matrix.arch }}.tar.gz"
-          tar -czf "${ASSET_NAME}" -C dist noai-watermark
-          echo "ASSET_NAME=${ASSET_NAME}" >> "${GITHUB_ENV}"
+          tar -czf noai-watermark-darwin-arm64.tar.gz -C dist noai-watermark
 
       - name: Upload asset to GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release upload "${RELEASE_TAG}" "${ASSET_NAME}" --clobber
+          gh release upload "${RELEASE_TAG}" noai-watermark-darwin-arm64.tar.gz --clobber
 
   update-homebrew-tap:
     name: Update Homebrew tap formula
@@ -91,23 +81,15 @@ jobs:
           token: ${{ secrets.HOMEBREW_TAP_GITHUB_TOKEN }}
           path: tap
 
-      - name: Download release assets and calculate checksums
+      - name: Download release asset and calculate checksum
         run: |
-          ARM_URL="https://github.com/${GITHUB_REPOSITORY}/releases/download/${RELEASE_TAG}/noai-watermark-darwin-arm64.tar.gz"
-          AMD_URL="https://github.com/${GITHUB_REPOSITORY}/releases/download/${RELEASE_TAG}/noai-watermark-darwin-amd64.tar.gz"
-
-          curl -fL "${ARM_URL}" -o noai-watermark-darwin-arm64.tar.gz
-          curl -fL "${AMD_URL}" -o noai-watermark-darwin-amd64.tar.gz
-
-          ARM_SHA256="$(sha256sum noai-watermark-darwin-arm64.tar.gz | awk '{print $1}')"
-          AMD_SHA256="$(sha256sum noai-watermark-darwin-amd64.tar.gz | awk '{print $1}')"
-
+          URL="https://github.com/${GITHUB_REPOSITORY}/releases/download/${RELEASE_TAG}/noai-watermark-darwin-arm64.tar.gz"
+          curl -fL "${URL}" -o noai-watermark-darwin-arm64.tar.gz
+          SHA256="$(sha256sum noai-watermark-darwin-arm64.tar.gz | awk '{print $1}')"
           VERSION="${RELEASE_TAG#v}"
 
-          echo "ARM_URL=${ARM_URL}" >> "${GITHUB_ENV}"
-          echo "AMD_URL=${AMD_URL}" >> "${GITHUB_ENV}"
-          echo "ARM_SHA256=${ARM_SHA256}" >> "${GITHUB_ENV}"
-          echo "AMD_SHA256=${AMD_SHA256}" >> "${GITHUB_ENV}"
+          echo "ASSET_URL=${URL}" >> "${GITHUB_ENV}"
+          echo "ASSET_SHA256=${SHA256}" >> "${GITHUB_ENV}"
           echo "VERSION=${VERSION}" >> "${GITHUB_ENV}"
 
       - name: Render Homebrew formula
@@ -121,13 +103,8 @@ jobs:
 
             on_macos do
               on_arm do
-                url "${ARM_URL}"
-                sha256 "${ARM_SHA256}"
-              end
-
-              on_intel do
-                url "${AMD_URL}"
-                sha256 "${AMD_SHA256}"
+                url "${ASSET_URL}"
+                sha256 "${ASSET_SHA256}"
               end
             end
 
