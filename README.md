@@ -156,6 +156,17 @@ pip install -e ".[dev,watermark,ctrlregen]"
 - Watermark removal: `torch >= 2.0.0`, `diffusers >= 0.25.0`, `transformers >= 4.35.0`, `accelerate >= 0.25.0`
 - Supported formats: PNG, JPEG
 
+### System Requirements
+
+|  | Default pipeline | CtrlRegen pipeline |
+|---|---|---|
+| **RAM** | 8 GB minimum | 16 GB recommended |
+| **Storage** | ~4 GB (model weights) | ~10 GB (multiple models) |
+| **GPU** | Optional | Optional (recommended) |
+| **OS** | macOS, Linux, Windows | macOS, Linux, Windows |
+
+No GPU required — CPU is the default. If you have an NVIDIA GPU (4+ GB VRAM) or Apple Silicon (M1/M2/M3/M4), it will be used automatically. You can force CPU with `--device cpu`.
+
 ---
 
 ## Pipeline Profiles
