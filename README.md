@@ -1,5 +1,5 @@
 <p align="center">
-<img src="example/screenshot.gif" width="560" />
+<img src="https://raw.githubusercontent.com/mertizci/noai-watermark/refs/heads/main/example/screenshot.gif" width="560" />
 </p>
 
 
@@ -47,8 +47,8 @@ Default settings (`--strength 0.04 --steps 50`) — watermark removed, image vis
 <th>Cleaned (watermark removed)</th>
 </tr>
 <tr>
-<td><img src="example/source.png" width="384" /></td>
-<td><img src="example/cleaned.png" width="384" /></td>
+<td><img src="https://raw.githubusercontent.com/mertizci/noai-watermark/refs/heads/main/example/source.png" width="384" /></td>
+<td><img src="https://raw.githubusercontent.com/mertizci/noai-watermark/refs/heads/main/example/cleaned.png" width="384" /></td>
 </tr>
 </table>
 
