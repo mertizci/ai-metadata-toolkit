@@ -159,11 +159,28 @@ def get_device() -> str:
         return "cpu"
     if torch.cuda.is_available():  # type: ignore
         try:
-            torch.zeros(1, device="cuda")
+            t = torch.tensor([1.0], device="cuda")
+            _ = t + t
+            del t
             return "cuda"
         except (AssertionError, RuntimeError):
             if _ensure_torch_cuda():
+                try:
+                    t = torch.tensor([1.0], device="cuda")
+                    _ = t + t
+                    del t
+                    return "cuda"
+                except (AssertionError, RuntimeError):
+                    pass
+    elif _has_nvidia_gpu():
+        if _ensure_torch_cuda():
+            try:
+                t = torch.tensor([1.0], device="cuda")
+                _ = t + t
+                del t
                 return "cuda"
+            except (AssertionError, RuntimeError):
+                pass
     if hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
         return "mps"
     return "cpu"
@@ -287,7 +304,21 @@ class WatermarkRemover:
             )
 
             self._set_progress(f"Moving model to device: {self.device}")
-            self._pipeline = self._pipeline.to(self.device)  # type: ignore
+            try:
+                self._pipeline = self._pipeline.to(self.device)  # type: ignore
+            except (RuntimeError, AssertionError) as exc:
+                if self.device == "cuda":
+                    self._set_progress("CUDA failed. Reinstalling torch with CUDA support...")
+                    if _ensure_torch_cuda():
+                        self._pipeline = self._pipeline.to("cuda")  # type: ignore
+                    else:
+                        raise RuntimeError(
+                            f"CUDA is not available ({exc}). "
+                            "Install CUDA-enabled PyTorch manually:\n"
+                            "  pip install torch --index-url https://download.pytorch.org/whl/cu121"
+                        ) from exc
+                else:
+                    raise
 
             if hasattr(self._pipeline, "enable_xformers_memory_efficient_attention"):
                 try:
