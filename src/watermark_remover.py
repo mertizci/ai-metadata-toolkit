@@ -159,7 +159,13 @@ def _reinstall_torch_cuda_and_restart() -> None:
         return
 
     os.environ[_CUDA_FIX_ENV_KEY] = "1"
-    os.execvp(sys.argv[0], sys.argv)
+    restart_code = (
+        "import sys; "
+        f"sys.argv = {sys.argv!r}; "
+        "from noai_cli import main; "
+        "sys.exit(main())"
+    )
+    os.execl(sys.executable, sys.executable, "-c", restart_code)
 
 
 def _ensure_watermark_deps() -> None:
