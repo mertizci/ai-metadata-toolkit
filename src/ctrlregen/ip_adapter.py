@@ -81,7 +81,7 @@ class CustomIPAdapterMixin:
 
         cache_dir = kwargs.pop("cache_dir", None)
         force_download = kwargs.pop("force_download", False)
-        resume_download = kwargs.pop("resume_download", False)
+        kwargs.pop("resume_download", None)
         proxies = kwargs.pop("proxies", None)
         local_files_only = kwargs.pop("local_files_only", None)
         token = kwargs.pop("token", None)
@@ -116,7 +116,6 @@ class CustomIPAdapterMixin:
                     weights_name=wn,
                     cache_dir=cache_dir,
                     force_download=force_download,
-                    resume_download=resume_download,
                     proxies=proxies,
                     local_files_only=local_files_only,
                     token=token,
